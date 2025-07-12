@@ -1,0 +1,49 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+}
+
+.logo-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    background-color: #17a288;
+    border-radius: 65px;
+    overflow: hidden;
+}
+
+/* The white 'P' shape, with refined proportions */
+.p-shape {
+    position: absolute;
+    top: 70px;
+    left: 70px;
+    width: 130px;
+    height: 160px;
+    background-color: white;
+}
+
+/* The teal "hole" inside the 'P', precisely positioned for uniform stroke */
+.p-shape::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 80px;
+    height: 60px;
+    background-color: #17a288;
+}
+
+/* The two-colored circle */
+.circle {
+    position: absolute;
+    bottom: 70px;
+    right: 70px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, #009983 90deg, #F7CB14 0);
+}
