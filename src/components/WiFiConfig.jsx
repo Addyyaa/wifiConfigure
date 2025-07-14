@@ -128,12 +128,12 @@ const WiFiConfig = () => {
   const [error, setError] = useState(null);
   const [formError, setFormError] = useState('');
   const [isLoadingList, setIsLoadingList] = useState(true);
-  const pollingIntervalRef = useRef(null);
+  const pollingTimeoutRef = useRef(null);
 
   const stopPolling = useCallback(() => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+      pollingTimeoutRef.current = null;
     }
   }, []);
 
@@ -181,12 +181,16 @@ const WiFiConfig = () => {
   }, [status, ssid, password]);
 
   const startPolling = useCallback(() => {
-    stopPolling(); // Ensure no multiple intervals are running
+    stopPolling(); // Ensure no multiple polling loops are running
 
-    pollingIntervalRef.current = setInterval(async () => {
+    const poll = async () => {
       try {
         const result = await getWifiStatus();
-        if (result.status !== 'connecting') {
+        if (result.status === 'connecting') {
+          // If still connecting, schedule the next poll after 1 second
+          pollingTimeoutRef.current = setTimeout(poll, 1000);
+        } else {
+          // If status changed, stop polling and update the state
           stopPolling();
           setStatus(result.status);
         }
@@ -195,7 +199,9 @@ const WiFiConfig = () => {
         setStatus('error');
         setError(t('statusError'));
       }
-    }, 1000); // Poll every 1 second
+    };
+
+    poll(); // Start the first poll immediately
   }, [stopPolling, t]);
 
   const getSignalLevel = (dbm) => {
