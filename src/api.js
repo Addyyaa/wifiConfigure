@@ -9,40 +9,33 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // 模拟获取WiFi列表
 export const getWifiList = async () => {
     console.log('Fetching WiFi list...');
-    await sleep(500); // 模拟网络延迟
-    // 在真实应用中，这里会是 axios.get(`${API_BASE_URL}/wifi-list`)
-    // 然后返回 response.data
-    // 这里我们返回模拟数据
+    await sleep(500);
+    
+    // 20% 的几率返回一个空列表来测试
+    if (Math.random() < 0.2) {
+        console.log('Simulating no WiFi found.');
+        return [];
+    }
+    
     const mockWifiList = [
-        { ssid: 'MyHomeWiFi', signal: -10 },
-        { ssid: 'Office-Guest', signal: -25 },
+        { ssid: 'MyHomeWiFi', signal: -50 },
+        { ssid: 'Office-Guest', signal: -65 },
+        { ssid: 'Free_Public_WiFi', signal: -80 },
         { ssid: 'Free_Public_WiFi1', signal: -30 },
-        { ssid: 'Free_Public_WiFi2', signal: -40 },
-        { ssid: 'Free_Public_WiFi3', signal: -50 },
-        { ssid: 'Free_Public_WiFi4', signal: -60 },
-        { ssid: 'Free_Public_WiFi5', signal: -70 },
-        { ssid: 'Free_Public_WiFi6', signal: -80 },
-        { ssid: 'Free_Public_WiFi7', signal: -90 },
-        { ssid: 'Free_Public_WiFi8', signal: -100 },
-        { ssid: 'Free_Public_WiFi9', signal: -80 },
-        { ssid: 'Free_Public_WiFi10', signal: -80 },
-        { ssid: 'Free_Public_WiFi11', signal: -80 },
-        { ssid: 'Free_Public_WiFi12', signal: -80 },
-        { ssid: 'Free_Public_WiFi13', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
-        { ssid: 'Free_Public_WiFi', signal: -80 },
     ];
     console.log('Fetched WiFi list:', mockWifiList);
     return mockWifiList;
 };
+
+// 模拟获取屏幕ID
+export const getScreenId = async () => {
+    console.log('Fetching Screen ID...');
+    await sleep(300); // Simulate network delay
+    const mockScreenId = 'A4B8-C1D6-E7F2';
+    console.log('Fetched Screen ID:', mockScreenId);
+    return mockScreenId;
+};
+
 
 // 模拟提交WiFi配置，增加随机失败的可能性
 export const postWifiConfig = async (ssid, password) => {

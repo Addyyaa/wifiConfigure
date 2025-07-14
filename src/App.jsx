@@ -1,9 +1,12 @@
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
 import WiFiConfig from './components/WiFiConfig';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { useAppContext } from './components/AppContext';
+import { getScreenId } from './api';
 
 const AppContainer = styled.div`
   display: flex;
@@ -21,6 +24,20 @@ const AppContainer = styled.div`
 
 function App() {
   const { t } = useTranslation();
+  const { setScreenId } = useAppContext();
+
+  useEffect(() => {
+    const fetchScreenId = async () => {
+      try {
+        const id = await getScreenId();
+        setScreenId(id);
+      } catch (error) {
+        console.error('Failed to fetch screen ID:', error);
+        // Optionally, set an error state in the context
+      }
+    };
+    fetchScreenId();
+  }, [setScreenId]);
 
   return (
     <AppContainer>

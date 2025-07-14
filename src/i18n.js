@@ -19,6 +19,7 @@ const resources = {
       cancel: 'Cancel',
       passwordRequired: 'Password cannot be empty.',
       retry: 'Retry',
+      noWifiFound: 'Oops, no WiFi networks detected nearby. Please move the Pintura device closer to the router.',
     },
   },
   zh: {
@@ -38,6 +39,7 @@ const resources = {
       cancel: '取消',
       passwordRequired: '密码不能为空。',
       retry: '重试',
+      noWifiFound: '┗|｀O′|┛ 嗷~~，未检测到附近的WiFi，请将Pintura设备尽量靠近路由器。',
     },
   },
 };

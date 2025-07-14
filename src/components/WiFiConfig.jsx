@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getWifiList, postWifiConfig, getWifiStatus } from '../api';
+import { useAppContext } from './AppContext';
 import StatusDisplay from './StatusDisplay';
 import { Spinner, StatusText } from './common/Feedback';
 import SignalStrength from './common/SignalStrength';
@@ -119,8 +120,17 @@ const SignalContainer = styled.div`
     justify-content: center;
 `;
 
+const ScreenIdDisplay = styled.p`
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 20px;
+`;
+
 const WiFiConfig = () => {
   const { t } = useTranslation();
+  const { screenId } = useAppContext();
   const [wifiList, setWifiList] = useState([]);
   const [ssid, setSsid] = useState('');
   const [password, setPassword] = useState('');
@@ -129,6 +139,7 @@ const WiFiConfig = () => {
   const [formError, setFormError] = useState('');
   const [isLoadingList, setIsLoadingList] = useState(true);
   const pollingTimeoutRef = useRef(null);
+  const [noWifiFound, setNoWifiFound] = useState(false);
 
   const stopPolling = useCallback(() => {
     if (pollingTimeoutRef.current) {
@@ -147,19 +158,24 @@ const WiFiConfig = () => {
   const fetchWifiList = useCallback(async () => {
     setIsLoadingList(true);
     setError(null);
+    setNoWifiFound(false);
     try {
       const list = await getWifiList();
       setWifiList(list);
 
-      const savedSsid = localStorage.getItem('wifiSsid');
-      const savedPassword = localStorage.getItem('wifiPassword');
+      if (list.length === 0) {
+        setNoWifiFound(true);
+      } else {
+        const savedSsid = localStorage.getItem('wifiSsid');
+        const savedPassword = localStorage.getItem('wifiPassword');
 
-      if (savedSsid && savedPassword && list.some(wifi => wifi.ssid === savedSsid)) {
-        setSsid(savedSsid);
-        setPassword(savedPassword);
-      } else if (list.length > 0) {
-        setSsid(list[0].ssid);
-        setPassword('');
+        if (savedSsid && savedPassword && list.some(wifi => wifi.ssid === savedSsid)) {
+          setSsid(savedSsid);
+          setPassword(savedPassword);
+        } else {
+          setSsid(list[0].ssid);
+          setPassword('');
+        }
       }
     } catch (err) {
       console.error('Failed to fetch WiFi list:', err);
@@ -266,38 +282,50 @@ const WiFiConfig = () => {
       )
   }
 
+  if (noWifiFound) {
+    return (
+        <FormContainer>
+            <StatusText>{t('noWifiFound')}</StatusText>
+            <Button onClick={fetchWifiList}>{t('retry')}</Button>
+        </FormContainer>
+    )
+  }
+
   return (
-    <FormContainer initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-      <AnimatePresence>
-          {status !== 'idle' && <StatusDisplay status={status} error={error} onReset={handleReset} />}
-      </AnimatePresence>
-      
-      <form onSubmit={handleSubmit} style={{ visibility: status !== 'idle' ? 'hidden' : 'visible' }}>
-            <FormGroup>
-                <Label htmlFor="wifi-ssid">{t('wifiSsid')}</Label>
-                <SelectWrapper>
-                    <CustomSelect id="wifi-ssid" value={ssid} onChange={(e) => setSsid(e.target.value)} disabled={status !== 'idle'}>
-                        {wifiList.map((wifi) => (
-                            <option key={wifi.ssid} value={wifi.ssid}>
-                                {wifi.ssid}
-                            </option>
-                        ))}
-                    </CustomSelect>
-                    <SignalContainer>
-                        {signalLevel && <SignalStrength level={signalLevel} />}
-                    </SignalContainer>
-                </SelectWrapper>
-            </FormGroup>
-            <FormGroup style={{ marginTop: '5px', marginBottom: '5px' }}>
-                <Label htmlFor="wifi-password">{t('wifiPassword')}</Label>
-                <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'}/>
-                <ErrorText style={{ marginTop: '5px', marginBottom: '5px' }}>{formError}</ErrorText>
-            </FormGroup>
-            <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
-                {t('connect')}
-            </Button>
-      </form>
-    </FormContainer>
+    <>
+      {screenId && <ScreenIdDisplay>Pintura: {screenId}</ScreenIdDisplay>}
+      <FormContainer initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <AnimatePresence>
+            {status !== 'idle' && <StatusDisplay status={status} error={error} onReset={handleReset} />}
+        </AnimatePresence>
+        
+        <form onSubmit={handleSubmit} style={{ visibility: status !== 'idle' ? 'hidden' : 'visible' }}>
+              <FormGroup>
+                  <Label htmlFor="wifi-ssid">{t('wifiSsid')}</Label>
+                  <SelectWrapper>
+                      <CustomSelect id="wifi-ssid" value={ssid} onChange={(e) => setSsid(e.target.value)} disabled={status !== 'idle'}>
+                          {wifiList.map((wifi) => (
+                              <option key={wifi.ssid} value={wifi.ssid}>
+                                  {wifi.ssid}
+                              </option>
+                          ))}
+                      </CustomSelect>
+                      <SignalContainer>
+                          {signalLevel && <SignalStrength level={signalLevel} />}
+                      </SignalContainer>
+                  </SelectWrapper>
+              </FormGroup>
+              <FormGroup style={{ marginTop: '5px', marginBottom: '5px' }}>
+                  <Label htmlFor="wifi-password">{t('wifiPassword')}</Label>
+                  <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'}/>
+                  <ErrorText style={{ marginTop: '5px', marginBottom: '5px' }}>{formError}</ErrorText>
+              </FormGroup>
+              <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
+                  {t('connect')}
+              </Button>
+        </form>
+      </FormContainer>
+    </>
   );
 };
 
