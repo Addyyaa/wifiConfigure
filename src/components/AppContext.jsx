@@ -1,21 +1,19 @@
 import React, { createContext, useContext, useState } from 'react';
-import PropTypes from 'prop-types';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [screenId, setScreenId] = useState(null);
+  const [wifiList, setWifiList] = useState([]);
+  const [screenId, setScreenId] = useState('');
 
   const value = {
+    wifiList,
+    setWifiList,
     screenId,
     setScreenId,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};
-
-AppProvider.propTypes = {
-  children: PropTypes.node.isRequired,
 };
 
 export const useAppContext = () => {

@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 
-const SwitcherButton = styled.button`
+const SwitcherButton = styled(motion.button)`
   position: absolute;
   top: 20px;
   right: 20px;
@@ -29,7 +30,7 @@ const SwitcherButton = styled.button`
 `;
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'zh' : 'en';
@@ -37,8 +38,12 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <SwitcherButton onClick={toggleLanguage}>
-      {i18n.language === 'en' ? '中文' : 'English'}
+    <SwitcherButton 
+      onClick={toggleLanguage}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {i18n.language === 'en' ? t('langZH') : t('langEN')}
     </SwitcherButton>
   );
 };

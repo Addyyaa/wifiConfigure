@@ -4,6 +4,37 @@
 
 ---
 
+## 新增：获取设备屏幕ID
+
+此接口用于在应用加载时获取当前设备的唯一标识符（屏幕ID）。
+
+- **URL:** `/api/getScreenId`
+- **方法:** `GET`
+- **请求参数:** 无
+- **成功响应 (200 OK):**
+  - **内容类型:** `application/json`
+  - **响应体:** 一个包含屏幕ID的JSON对象。
+
+    ```json
+    {
+      "screenId": "A4B8-C1D6-E7F2"
+    }
+    ```
+
+  - **字段说明:**
+    - `screenId` (String): 设备的唯一屏幕ID。
+
+- **失败响应 (e.g., 500 Internal Server Error):**
+  - **内容类型:** `application/json`
+  - **响应体:**
+    ```json
+    {
+      "error": "Failed to retrieve screen ID."
+    }
+    ```
+
+---
+
 ## 1. 获取可用WiFi列表
 
 此接口用于获取设备扫描到的周边WiFi热点列表。

@@ -7,6 +7,7 @@ import { useAppContext } from './AppContext';
 import StatusDisplay from './StatusDisplay';
 import { Spinner, StatusText } from './common/Feedback';
 import SignalStrength from './common/SignalStrength';
+import { useNavigate } from 'react-router-dom';
 
 const breatheAnimation = keyframes`
   0% { transform: scale(1); box-shadow: 0 4px 20px rgba(0, 77, 255, 0.3); }
@@ -75,18 +76,24 @@ const Button = styled(motion.button)`
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   border: none;
-  background-color: hsl(172.61deg 100% 41.37%);
+  background-color: ${props => props.secondary ? '#6c757d' : 'hsl(172.61deg 100% 41.37%)'};
   color: white;
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
-  animation: ${breatheAnimation} 2s ease-in-out infinite;
+  animation: ${props => props.secondary ? 'none' : breatheAnimation} 2s ease-in-out infinite;
 
   &:disabled {
     background-color: #ccc;
     cursor: not-allowed;
     animation: none;
   }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
 `;
 
 const ErrorText = styled.p`
@@ -130,6 +137,7 @@ const ScreenIdDisplay = styled.p`
 
 const WiFiConfig = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { screenId } = useAppContext();
   const [wifiList, setWifiList] = useState([]);
   const [ssid, setSsid] = useState('');
@@ -320,9 +328,14 @@ const WiFiConfig = () => {
                   <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'}/>
                   <ErrorText style={{ marginTop: '5px', marginBottom: '5px' }}>{formError}</ErrorText>
               </FormGroup>
-              <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
-                  {t('connect')}
-              </Button>
+              <ButtonContainer>
+                <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
+                    {t('connect')}
+                </Button>
+                <Button type="button" secondary onClick={() => navigate('/create-groups')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
+                    {t('createGroup')}
+                </Button>
+              </ButtonContainer>
         </form>
       </FormContainer>
     </>
