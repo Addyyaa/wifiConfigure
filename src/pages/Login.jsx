@@ -69,13 +69,13 @@ const Label = styled.label`
 const Input = styled.input`
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid ${props => props.$hasError ? '#d93025' : '#ccc'};
   font-size: 1rem;
   width: 100%;
   &:focus {
     outline: none;
-    border-color: hsl(172.61deg 100% 41.37%);
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: ${props => props.$hasError ? '#d93025' : 'hsl(172.61deg 100% 41.37%)'};
+    box-shadow: 0 0 0 2px ${props => props.$hasError ? 'rgba(217, 48, 37, 0.25)' : 'rgba(0, 123, 255, 0.25)'};
   }
 `;
 
@@ -270,6 +270,13 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // 检查密码是否已输入
+    if (!password) {
+      setError(t('passwordRequired'));
+      return;
+    }
+    
     // Re-validate before submitting
     if (userInput && !userInput.includes('@')) {
         const phoneNumber = parsePhoneNumberFromString(userInput, region);
@@ -291,11 +298,19 @@ function Login() {
         error.response = { data: response }; // Mimic axios error structure
         throw error;
       }
+      
+      // 检查密码错误 (code 38)
+      if (response && response.code === 38) {
+        setError(t('passwordError'));
+        return;
+      }
 
       navigate('/create-groups');
     } catch (err) {
       if (err.response && (err.response.data.code === 'USER_NOT_EXIST' || err.response.data.code === 37)) {
         setIsRedirectModalOpen(true);
+      } else if (err.response && err.response.data.code === 38) {
+        setError(t('passwordError'));
       } else {
         setError(t('loginError'));
       }
@@ -345,7 +360,7 @@ function Login() {
         <Title>{t('loginTitle')}</Title>
         <form onSubmit={handleLogin}>
             <FormGroup>
-                <Label htmlFor="region">{t('region')}</Label>
+                <Label htmlFor="region" style={{marginBottom: '2%'}}>{t('region')}</Label>
                  <Select
                     id="region"
                     value={countryOptions.find(opt => opt.value === region)}
@@ -357,7 +372,7 @@ function Login() {
                 />
             </FormGroup>
             <FormGroup>
-                <Label htmlFor="account">{t('account')}</Label>
+                <Label htmlFor="account" style={{marginTop: '2%'}}>{t('account')}</Label>
                 <InputGroup>
                     {countryCode && <CountryCodeAddon>{countryCode}</CountryCodeAddon>}
                     <GroupedInput
@@ -380,13 +395,20 @@ function Login() {
                 {phoneError && <ErrorText>{phoneError}</ErrorText>}
             </FormGroup>
             <FormGroup>
-                <Label htmlFor="password">{t('password')}</Label>
+                <Label htmlFor="password" style={{marginTop: '2%'}}>{t('password')}</Label>
                 <Input
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                        setPassword(e.target.value);
+                        // 清除密码相关的错误消息
+                        if (error === t('passwordError') || error === t('passwordRequired')) {
+                            setError('');
+                        }
+                    }}
                     disabled={isLoading}
+                    $hasError={!!error && (error === t('passwordError') || error === t('passwordRequired'))}
                 />
             </FormGroup>
             <ErrorText>{error}</ErrorText>

@@ -31,7 +31,7 @@ export const getWifiList = async () => {
 export const getScreenId = async () => {
     console.log('Fetching Screen ID...');
     await sleep(300); // Simulate network delay
-    const mockScreenId = 'A4B8-C1D6-E7F2';
+    const mockScreenId = 'PinturaV2test00001';
     console.log('Fetched Screen ID:', mockScreenId);
     return mockScreenId;
 };

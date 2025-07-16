@@ -309,10 +309,10 @@ const WiFiConfig = () => {
         
         <form onSubmit={handleSubmit} style={{ visibility: status !== 'idle' ? 'hidden' : 'visible' }}>
               <FormGroup>
-                  <Label htmlFor="wifi-ssid">{t('wifiSsid')}</Label>
+                  <Label htmlFor="wifi-ssid" style={{marginBottom: '2%'}}>{t('wifiSsid')}</Label>
                   <SelectWrapper>
                       <CustomSelect id="wifi-ssid" value={ssid} onChange={(e) => setSsid(e.target.value)} disabled={status !== 'idle'}>
-                          {wifiList.map((wifi) => (
+                          {wifiList.map((wifi) => ( 
                               <option key={wifi.ssid} value={wifi.ssid}>
                                   {wifi.ssid}
                               </option>
@@ -323,8 +323,8 @@ const WiFiConfig = () => {
                       </SignalContainer>
                   </SelectWrapper>
               </FormGroup>
-              <FormGroup style={{ marginTop: '5px', marginBottom: '5px' }}>
-                  <Label htmlFor="wifi-password">{t('wifiPassword')}</Label>
+              <FormGroup>
+                  <Label htmlFor="wifi-password" style={{marginTop: '2%', marginBottom: '2%'}}>{t('wifiPassword')}</Label>
                   <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'}/>
                   <ErrorText style={{ marginTop: '5px', marginBottom: '5px' }}>{formError}</ErrorText>
               </FormGroup>
