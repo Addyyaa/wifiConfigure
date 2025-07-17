@@ -10,9 +10,9 @@ export default defineConfig({
     // 这样可以避免跨域问题
     proxy: {
       '/api': {
-        target: 'http://localhost:3001', // 假设这是您的模拟服务器地址
+        target: 'http://192.168.1.10',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/api/, '/api'), // 保留 /api 前缀
       },
     },
   },

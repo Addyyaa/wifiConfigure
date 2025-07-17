@@ -261,7 +261,8 @@ const WiFiConfig = () => {
       setError(null);
       try {
         const response = await postWifiConfig(ssid, password);
-        if (response.success) {
+        console.log('postWifiConfig response:', response);
+        if (response == 'success') {
           startPolling();
         } else {
           setStatus('error');
@@ -321,8 +322,8 @@ const WiFiConfig = () => {
                   <Label htmlFor="wifi-ssid" style={{marginBottom: '2%'}}>{t('wifiSsid')}</Label>
                   <SelectWrapper>
                       <CustomSelect id="wifi-ssid" value={ssid} onChange={(e) => setSsid(e.target.value)} disabled={status !== 'idle'}>
-                          {wifiList.map((wifi) => ( 
-                              <option key={wifi.ssid} value={wifi.ssid}>
+                          {wifiList.map((wifi, index) => ( 
+                              <option key={`${wifi.ssid}-${index}`}>
                                   {wifi.ssid}
                               </option>
                           ))}

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // 模拟的后端API地址
-const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-// const API_BASE_URL = 'http://' + `192.168.42.1` + ':80/api';
+// const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
+const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端
 
 
 // 模拟一个延时函数
@@ -10,10 +10,14 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // 模拟获取WiFi列表
 export const getWifiList = async () => {
-    console.log('Fetching WiFi list...');
+    console.log('Fetching WiFi list...', API_BASE_URL);
     try {
-        const response = await axios.get(`${API_BASE_URL}/wifi-list`) 
-        return response.data
+        const response = await axios.get(`${API_BASE_URL}/wifi-list`);
+        const data = response.data.map(item => ({
+            ...item,
+            ssid: decodeURIComponent(JSON.parse(`"${item.ssid.replace(/\\x/g, '%')}"`)) // 解码转义字符
+        }));
+        return data;
     } catch (error) {
         console.error('Error fetching WiFi list:', error);
         throw error;
