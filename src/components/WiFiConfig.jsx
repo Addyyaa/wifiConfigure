@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getWifiList, postWifiConfig, getWifiStatus } from '../api';
 import { useAppContext } from './AppContext';
-import StatusDisplay from './StatusDisplay';
+import StatusDisplay from './StatusDisplay.jsx';
 import { Spinner, StatusText } from './common/Feedback';
 import SignalStrength from './common/SignalStrength';
 import { useNavigate } from 'react-router-dom';
@@ -147,6 +147,7 @@ const WiFiConfig = () => {
   const [formError, setFormError] = useState('');
   const [isLoadingList, setIsLoadingList] = useState(true);
   const pollingTimeoutRef = useRef(null);
+  const pollingStartTimeRef = useRef(null);
   const [noWifiFound, setNoWifiFound] = useState(false);
 
   const stopPolling = useCallback(() => {
@@ -205,16 +206,24 @@ const WiFiConfig = () => {
   }, [status, ssid, password]);
 
   const startPolling = useCallback(() => {
-    stopPolling(); // Ensure no multiple polling loops are running
-
+    stopPolling(); // 确保没有多个轮询循环在运行
+    pollingStartTimeRef.current = Date.now();
+    
     const poll = async () => {
+      // 检查是否超时（60秒）
+      if (Date.now() - pollingStartTimeRef.current > 60000) {
+        stopPolling();
+        setStatus('timeout');
+        return;
+      }
+
       try {
         const result = await getWifiStatus();
         if (result.status === 'connecting') {
-          // If still connecting, schedule the next poll after 1 second
+          // 如果仍在连接中，则在1秒后安排下一次轮询
           pollingTimeoutRef.current = setTimeout(poll, 1000);
         } else {
-          // If status changed, stop polling and update the state
+          // 如果状态已更改，则停止轮询并更新状态
           stopPolling();
           setStatus(result.status);
         }
@@ -225,7 +234,7 @@ const WiFiConfig = () => {
       }
     };
 
-    poll(); // Start the first poll immediately
+    poll(); // 立即开始第一次轮询
   }, [stopPolling, t]);
 
   const getSignalLevel = (dbm) => {
@@ -270,7 +279,7 @@ const WiFiConfig = () => {
     setError(null);
     setFormError('');
     // Do not reset password to allow for quick retries
-  }
+  };
 
   if (isLoadingList) {
       return (

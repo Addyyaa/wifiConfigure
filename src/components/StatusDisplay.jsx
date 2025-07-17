@@ -42,6 +42,19 @@ const StatusDisplay = ({ status, error, onReset }) => {
 
     const message = messages[status];
 
+    const getButtonText = () => {
+        switch (status) {
+            case 'success':
+                return t('ok');
+            case 'timeout':
+            case 'password_error':
+            case 'error':
+                return t('retry');
+            default:
+                return t('ok');
+        }
+    };
+
     if (!message) return null;
 
     return (
@@ -50,7 +63,7 @@ const StatusDisplay = ({ status, error, onReset }) => {
             <StatusText>{message}</StatusText>
             {status !== 'connecting' && (
                 <Button onClick={onReset} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    {t('ok')}
+                    {getButtonText()}
                 </Button>
             )}
         </StatusOverlay>

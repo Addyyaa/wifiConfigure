@@ -18,6 +18,7 @@ const SpinnerContainer = styled.div`
   border-top: 5px solid hsl(172.61deg 100% 41.37%);
   border-radius: 50%;
   animation: ${rotate} 1s linear infinite;
+  margin: 0 auto;
 `;
 
 export const Spinner = () => <SpinnerContainer />;
@@ -27,4 +28,5 @@ export const StatusText = styled(motion.p)`
     font-size: 1.2rem;
     font-weight: bold;
     color: #333;
+    text-align: center;
 `; 
