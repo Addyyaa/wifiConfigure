@@ -111,6 +111,7 @@ const SelectWrapper = styled.div`
   width: 100%;
 `;
 
+
 const CustomSelect = styled(Select)`
   width: calc(100% - 32px); /* Full width minus gap and signal icon width */
 `;
@@ -149,6 +150,7 @@ const WiFiConfig = () => {
   const pollingTimeoutRef = useRef(null);
   const pollingStartTimeRef = useRef(null);
   const [noWifiFound, setNoWifiFound] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const stopPolling = useCallback(() => {
     if (pollingTimeoutRef.current) {
@@ -219,12 +221,14 @@ const WiFiConfig = () => {
 
       try {
         const result = await getWifiStatus();
+        // if (result === 'connecting') {   # TODO: 开发修复接口前使用这个
         if (result.status === 'connecting') {
           // 如果仍在连接中，则在1秒后安排下一次轮询
-          pollingTimeoutRef.current = setTimeout(poll, 1000);
+          pollingTimeoutRef.current = setTimeout(poll, 1000); 
         } else {
           // 如果状态已更改，则停止轮询并更新状态
           stopPolling();
+          // setStatus(result);  # TODO: 开发修复接口前使用这个
           setStatus(result.status);
         }
       } catch (err) {
@@ -282,14 +286,16 @@ const WiFiConfig = () => {
     // Do not reset password to allow for quick retries
   };
 
-  if (isLoadingList) {
-      return (
-          <FormContainer>
-              <Spinner />
-              <StatusText>{t('connecting')}</StatusText>
-          </FormContainer>
-      )
-  }
+  // 添加防抖函数（在组件外部定义）
+  const debounce = (func, delay) => {
+    let timer;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
+
 
   if (error && status === 'idle' && !isLoadingList) {
       return (
@@ -321,15 +327,26 @@ const WiFiConfig = () => {
               <FormGroup>
                   <Label htmlFor="wifi-ssid" style={{marginBottom: '2%'}}>{t('wifiSsid')}</Label>
                   <SelectWrapper>
-                      <CustomSelect id="wifi-ssid" value={ssid} onChange={(e) => setSsid(e.target.value)} disabled={status !== 'idle'}>
-                          {wifiList.map((wifi, index) => ( 
-                              <option key={`${wifi.ssid}-${index}`}>
-                                  {wifi.ssid}
-                              </option>
-                          ))}
+                      <CustomSelect 
+                        id="wifi-ssid" 
+                        value={ssid} 
+                        onClick={() => {
+                          if (!isRefreshing) {
+                            setIsRefreshing(true);
+                            fetchWifiList().finally(() => setIsRefreshing(false));
+                          }
+                        }}
+                        onChange={(e) => setSsid(e.target.value)}
+                        disabled={status !== 'idle'}
+                      >
+                        {wifiList.map((wifi, index) => (
+                          <option key={`${wifi.ssid}-${index}`} value={wifi.ssid}>
+                            {wifi.ssid}
+                          </option>
+                        ))}
                       </CustomSelect>
                       <SignalContainer>
-                          {signalLevel && <SignalStrength level={signalLevel} />}
+                        {isRefreshing ? <Spinner size="20px"/> : signalLevel && <SignalStrength level={signalLevel} />}
                       </SignalContainer>
                   </SelectWrapper>
               </FormGroup>

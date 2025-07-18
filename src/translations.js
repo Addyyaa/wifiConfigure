@@ -55,6 +55,8 @@ export const translations = {
       checkAccountButton: 'Check Account',
       registerButton: 'Go to Register',
       createGroupTitle: 'Create Screen Group',
+      expandWiFiList: 'Expand WiFi List',
+      collapseWiFiList: 'Collapse WiFi List',
     },
   },
   zh: {
@@ -113,6 +115,8 @@ export const translations = {
       checkAccountButton: '检查账号',
       registerButton: '去注册',
       createGroupTitle: '创建屏组',
+      expandWiFiList: '展开WiFi列表',
+      collapseWiFiList: '收起WiFi列表',
     },
   },
 }; 

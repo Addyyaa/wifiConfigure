@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 模拟的后端API地址
 const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-// const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端
+// const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端，开发模式下使用这个
 
 
 // 模拟一个延时函数
@@ -63,7 +63,7 @@ export const getWifiStatus = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/wifi-status`)
         console.log('wifi status, Response:', response.data);
-        return response.data
+        return response.data  // TODO: 该接口后端没有按照json格式返回，需要后端修改，否则前端无法轮询WiFi状态。需要改成{"status": "connecting"}
     } catch (error) {
         console.error('Error getting WiFi status:', error);
         throw error;
