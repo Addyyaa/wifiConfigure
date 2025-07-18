@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Select, { components } from 'react-select';
-import ReactCountryFlag from 'react-country-flag';
+import * as flags from 'country-flag-icons/react/3x2';
 import { login, getAccount } from '../api';
 import Modal, { ModalButton } from '../components/common/Modal'; // Import Modal
+import { useAppContext } from '../components/AppContext'; // 引入 useAppContext
 // By importing from `/max`, we get the most accurate validation and parsing.
 // This resolves ambiguity issues between country number formats.
 import parsePhoneNumberFromString, { getCountries } from 'libphonenumber-js/max';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import ThemeSwitcher from '../components/LanguageSwitcher';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import zhLocale from 'i18n-iso-countries/langs/zh.json';
@@ -20,6 +21,82 @@ import zhLocale from 'i18n-iso-countries/langs/zh.json';
 countries.registerLocale(enLocale);
 countries.registerLocale(zhLocale);
 
+// 常用国家列表，优先显示
+const COMMON_COUNTRIES = ['CN', 'US', 'JP', 'KR', 'GB', 'DE', 'FR', 'AU', 'CA', 'SG', 'HK', 'TW', 'IN', 'BR', 'RU'];
+
+// 本地 SVG 旗帜组件
+const CountryFlag = React.memo(({ countryCode, size = 20 }) => {
+  if (!countryCode) {
+    return (
+      <span 
+        style={{ 
+          fontSize: size * 0.6,
+          display: 'inline-block',
+          width: size,
+          height: size * 0.75,
+          textAlign: 'center',
+          lineHeight: `${size * 0.75}px`,
+          backgroundColor: '#f0f0f0',
+          border: '1px solid #ddd',
+          borderRadius: '2px',
+          color: '#666'
+        }}
+      >
+        ??
+      </span>
+    );
+  }
+  
+  // 获取对应的旗帜组件
+  const FlagComponent = flags[countryCode.toUpperCase()];
+  
+  if (!FlagComponent) {
+    // 如果没有找到对应的旗帜，显示国家代码
+    return (
+      <span 
+        style={{ 
+          fontSize: size * 0.6,
+          display: 'inline-block',
+          width: size,
+          height: size * 0.75,
+          textAlign: 'center',
+          lineHeight: `${size * 0.75}px`,
+          backgroundColor: '#f0f0f0',
+          border: '1px solid #ddd',
+          borderRadius: '2px',
+          color: '#666'
+        }}
+      >
+        {countryCode}
+      </span>
+    );
+  }
+  
+  return (
+    <div
+      style={{
+        width: size,
+        height: size * 0.75,
+        display: 'inline-block',
+        borderRadius: '2px',
+        border: '1px solid #ddd',
+        overflow: 'hidden'
+      }}
+    >
+      <FlagComponent 
+        width={size} 
+        height={size * 0.75}
+        style={{ 
+          display: 'block',
+          objectFit: 'cover'
+        }}
+      />
+    </div>
+  );
+});
+
+CountryFlag.displayName = 'CountryFlag';
+
 const LoginPageContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -27,31 +104,55 @@ const LoginPageContainer = styled(motion.div)`
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  background-color: #f0f2f5;
+  background-color: ${props => props.$isDarkMode ? '#000000' : '#f0f2f5'};
+  transition: background-color 0.3s ease;
 `;
 
 const FormContainer = styled.div`
-  background: white;
+  background: ${props => props.$isDarkMode ? '#1C1C1E' : 'white'};
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.4 : 0.1});
   width: 100%;
   max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  position: relative; /* Added for positioning the language switcher */
+  position: relative;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 `;
 
 const TopRightContainer = styled.div`
   position: absolute;
   top: 1rem;
   right: 1rem;
+  z-index: 10;
+  
+  @media (max-width: 480px) {
+    top: 0.8rem;
+    right: 0.8rem;
+  }
+`;
+
+const HeaderSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding-right: 70px; /* 为右上角按钮留出更多空间 */
+  
+  @media (max-width: 480px) {
+    padding-right: 80px; /* 移动设备上留出更多空间 */
+    min-height: 50px;
+  }
 `;
 
 const Title = styled.h1`
     text-align: center;
-    color: #333;
+    color: ${props => props.$isDarkMode ? '#e0e0e0' : '#333'};
+    transition: color 0.3s ease;
+    margin: 0;
+    flex: 1;
 `;
 
 const FormGroup = styled.div`
@@ -63,15 +164,19 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
   font-weight: bold;
   font-size: 1rem;
-  color: #333;
+  color: ${props => props.$isDarkMode ? '#e0e0e0' : '#333'};
+  transition: color 0.3s ease;
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px solid ${props => props.$hasError ? '#d93025' : '#ccc'};
+  border: 1px solid ${props => props.$hasError ? '#d93025' : (props.$isDarkMode ? '#555' : '#ccc')};
   font-size: 1rem;
   width: 100%;
+  background-color: ${props => props.$isDarkMode ? '#444' : '#fff'};
+  color: ${props => props.$isDarkMode ? '#e0e0e0' : '#333'};
+  transition: background-color 0.3s ease, color 0.3s ease;
   &:focus {
     outline: none;
     border-color: ${props => props.$hasError ? '#d93025' : 'hsl(172.61deg 100% 41.37%)'};
@@ -89,6 +194,7 @@ const Button = styled(motion.button)`
   font-weight: bold;
   cursor: pointer;
   width: 100%;
+  transition: background-color 0.3s ease;
 
   &:disabled {
     background-color: #ccc;
@@ -106,10 +212,11 @@ const ErrorText = styled.p`
 const InputGroup = styled.div`
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
+  border: 1px solid ${props => props.$isDarkMode ? '#555' : '#ccc'};
   border-radius: 8px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease;
   position: relative; // Needed for positioning the clear button
+  background-color: ${props => props.$isDarkMode ? '#444' : '#fff'};
 
   &:focus-within {
     border-color: hsl(172.61deg 100% 41.37%);
@@ -136,19 +243,21 @@ const ClearButton = styled.button`
 
 const CountryCodeAddon = styled.span`
   padding: 0.75rem;
-  color: #666;
-  background-color: #f7f7f7;
-  border-right: 1px solid #ccc;
+  color: ${props => props.$isDarkMode ? '#ccc' : '#666'};
+  background-color: ${props => props.$isDarkMode ? '#3a3a3a' : '#f7f7f7'};
+  border-right: 1px solid ${props => props.$isDarkMode ? '#555' : '#ccc'};
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
   white-space: nowrap;
+  transition: background-color 0.3s ease, color 0.3s ease;
 `;
 
 const GroupedInput = styled(Input)`
   border: none;
   flex-grow: 1;
   border-radius: ${props => props.$hasCountryCode ? '0 8px 8px 0' : '8px'};
-
+  background-color: transparent; /* 使用透明背景，继承父容器的背景色 */
+  transition: background-color 0.3s ease, color 0.3s ease;
   &:focus {
     box-shadow: none;
   }
@@ -162,21 +271,57 @@ const CountryOptionContainer = styled.div`
 
 const Option = (props) => (
   <components.Option {...props}>
-    <CountryOptionContainer>
-      <ReactCountryFlag countryCode={props.value} svg style={{ width: '1.5em', height: '1.5em' }} />
-      <span>{props.label}</span>
-    </CountryOptionContainer>
+    {props.data.value === 'divider' ? (
+      <div style={{ textAlign: 'center', padding: '4px 0' }}>
+        <span style={{ color: '#999' }}>{props.label}</span>
+      </div>
+    ) : (
+      <CountryOptionContainer>
+        <CountryFlag 
+          countryCode={props.value} 
+          size={24}
+        />
+        <span>{props.label}</span>
+      </CountryOptionContainer>
+    )}
   </components.Option>
 );
 
 const SingleValue = ({ children, ...props }) => (
     <components.SingleValue {...props}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ReactCountryFlag countryCode={props.data.value} svg style={{ width: '1.5em', height: '1.5em' }} />
+            <CountryFlag 
+              countryCode={props.data.value} 
+              size={24}
+            />
             {children}
         </div>
     </components.SingleValue>
 );
+
+// 优化的菜单列表组件
+const OptimizedMenuList = (props) => {
+  const { children, maxHeight = 200 } = props;
+  
+  if (!children || !Array.isArray(children)) {
+    return <components.MenuList {...props} />;
+  }
+
+  // 限制最大高度，启用滚动
+  return (
+    <components.MenuList 
+      {...props} 
+      style={{ 
+        maxHeight: maxHeight, 
+        overflowY: 'auto',
+        // 优化滚动性能
+        scrollBehavior: 'smooth'
+      }}
+    >
+      {children}
+    </components.MenuList>
+  );
+};
 
 
 function Login() {
@@ -191,7 +336,11 @@ function Login() {
   const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
   const navigate = useNavigate();
   const { i18n, t } = useTranslation();
+  const { isDarkMode } = useAppContext(); // 获取 isDarkMode
   const accountInputRef = useRef(null);
+  const PINTURA_CN_URL = 'http://cloud-service.austinelec.com:8080';
+  const PINTURA_US_URL = 'http://cloud-service-us.austinelec.com:8080';
+  const PINTURA_DEV_URL = 'http://139.224.192.36:8082';
 
   useEffect(() => {
     const savedAccount = getAccount();
@@ -211,12 +360,34 @@ function Login() {
   const countryOptions = useMemo(() => {
     const currentLang = i18n.language.startsWith('zh') ? 'zh' : 'en';
     const countryNames = countries.getNames(currentLang, { select: 'official' });
-    return getCountries()
-      .map(code => ({
-        value: code,
-        label: countryNames[code] || code,
-      }))
+    
+    // 获取所有国家
+    const allCountries = getCountries();
+    
+    // 分离常用国家和其他国家
+    const commonCountries = COMMON_COUNTRIES.filter(code => allCountries.includes(code));
+    const otherCountries = allCountries.filter(code => !COMMON_COUNTRIES.includes(code));
+    
+    // 创建国家选项
+    const createCountryOption = (code) => ({
+      value: code,
+      label: countryNames[code] || code,
+    });
+    
+    // 常用国家按预设顺序排列
+    const commonOptions = commonCountries.map(createCountryOption);
+    
+    // 其他国家按字母排序
+    const otherOptions = otherCountries
+      .map(createCountryOption)
       .sort((a, b) => a.label.localeCompare(b.label));
+    
+    // 合并并添加分隔符
+    return [
+      ...commonOptions,
+      { value: 'divider', label: '──────────', isDisabled: true },
+      ...otherOptions
+    ];
   }, [i18n.language]);
 
   const handleAccountBlur = () => {
@@ -290,7 +461,8 @@ function Login() {
     setError('');
 
     try {
-      const response = await login(userInput, password, countryCode.replace('+', ''));
+      
+      const response = await login(userInput, password, region, countryCode.replace('+', ''));
       
       // Manually check for business logic errors returned in a 200 response
       if (response && response.code === 37) {
@@ -313,6 +485,7 @@ function Login() {
         setError(t('passwordError'));
       } else {
         setError(t('loginError'));
+        console.error("err", err)
       }
     } finally {
       setIsLoading(false);
@@ -330,55 +503,88 @@ function Login() {
   };
 
   const selectStyles = {
-    control: (provided) => ({
-        ...provided,
-        padding: '0.3rem',
-        borderRadius: '8px',
-        border: '1px solid #ccc',
-        boxShadow: 'none',
-        '&:hover': {
-            borderColor: '#ccc',
-        }
+    control: (provided, state) => ({
+      ...provided,
+      padding: '0.3rem',
+      borderRadius: '8px',
+      backgroundColor: isDarkMode ? '#333' : '#fff',
+      borderColor: isDarkMode ? '#555' : '#ccc',
+      boxShadow: state.isFocused ? '0 0 0 1px hsl(172.61deg 100% 41.37%)' : 'none',
+      '&:hover': {
+        borderColor: isDarkMode ? '#666' : '#b3b3b3',
+      }
     }),
-    option: (provided) => ({
-        ...provided,
-        display: 'flex',
-        alignItems: 'center',
+    option: (provided, state) => ({
+      ...provided,
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: state.isSelected ? 'hsl(172.61deg 100% 41.37%)' : (isDarkMode ? '#333' : '#fff'),
+      color: isDarkMode ? '#e0e0e0' : '#333',
+      '&:hover': {
+        backgroundColor: isDarkMode ? 'hsl(172.61deg 100% 31.37%)' : '#e6e6e6',
+      },
+      // 分隔符样式
+      ...(state.data?.value === 'divider' && {
+        backgroundColor: 'transparent',
+        color: isDarkMode ? '#666' : '#999',
+        cursor: 'default',
+        '&:hover': {
+          backgroundColor: 'transparent',
+        }
+      })
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: isDarkMode ? '#e0e0e0' : '#333',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: isDarkMode ? '#333' : '#fff',
     }),
   };
 
   return (
     <LoginPageContainer
+        $isDarkMode={isDarkMode}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
     >
-      <FormContainer>
+      <FormContainer $isDarkMode={isDarkMode}>
         <TopRightContainer>
-            <LanguageSwitcher />
+            <ThemeSwitcher />
         </TopRightContainer>
-        <Title>{t('loginTitle')}</Title>
+        <HeaderSection>
+          <Title $isDarkMode={isDarkMode}>{t('loginTitle')}</Title>
+        </HeaderSection>
         <form onSubmit={handleLogin}>
             <FormGroup>
-                <Label htmlFor="region" style={{marginBottom: '2%'}}>{t('region')}</Label>
+                <Label htmlFor="region" style={{marginBottom: '2%'}} $isDarkMode={isDarkMode}>{t('region')}</Label>
                  <Select
                     id="region"
                     value={countryOptions.find(opt => opt.value === region)}
                     onChange={handleRegionChange}
                     options={countryOptions}
                     isDisabled={isLoading}
-                    components={{ Option, SingleValue }}
+                    components={{ 
+                      Option, 
+                      SingleValue,
+                      MenuList: OptimizedMenuList
+                    }}
                     styles={selectStyles}
+                    maxMenuHeight={260}
+                    menuPlacement="auto"
                 />
             </FormGroup>
             <FormGroup>
-                <Label htmlFor="account" style={{marginTop: '2%'}}>{t('account')}</Label>
-                <InputGroup>
-                    {countryCode && <CountryCodeAddon>{countryCode}</CountryCodeAddon>}
+                <Label htmlFor="account" style={{marginTop: '2%'}} $isDarkMode={isDarkMode}>{t('account')}</Label>
+                <InputGroup $isDarkMode={isDarkMode}>
+                    {countryCode && <CountryCodeAddon $isDarkMode={isDarkMode}>{countryCode}</CountryCodeAddon>}
                     <GroupedInput
                         id="account"
                         type="text"
                         $hasCountryCode={!!countryCode}
+                        $isDarkMode={isDarkMode}
                         value={nationalNumber}
                         onChange={handleAccountChange}
                         onBlur={handleAccountBlur}
@@ -395,7 +601,7 @@ function Login() {
                 {phoneError && <ErrorText>{phoneError}</ErrorText>}
             </FormGroup>
             <FormGroup>
-                <Label htmlFor="password" style={{marginTop: '2%'}}>{t('password')}</Label>
+                <Label htmlFor="password" $isDarkMode={isDarkMode}>{t('password')}</Label>
                 <Input
                     id="password"
                     type="password"
@@ -408,10 +614,11 @@ function Login() {
                         }
                     }}
                     disabled={isLoading}
+                    $isDarkMode={isDarkMode}
                     $hasError={!!error && (error === t('passwordError') || error === t('passwordRequired'))}
                 />
+                <ErrorText>{error || ' '}</ErrorText>
             </FormGroup>
-            <ErrorText>{error}</ErrorText>
             <Button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} disabled={isLoading || !!phoneError}>
                 {isLoading ? t('loggingIn') : t('loginButton')}
             </Button>
@@ -420,6 +627,7 @@ function Login() {
             isOpen={isRedirectModalOpen}
             onClose={() => setIsRedirectModalOpen(false)}
             title={t('userNotFoundTitle')}
+            isDarkMode={isDarkMode}
         >
             <div>
                 <p>{t('userNotFoundMessage')}</p>

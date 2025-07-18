@@ -57,6 +57,7 @@ export const translations = {
       createGroupTitle: 'Create Screen Group',
       expandWiFiList: 'Expand WiFi List',
       collapseWiFiList: 'Collapse WiFi List',
+      selectWifi: 'Select WiFi',
     },
   },
   zh: {
@@ -117,6 +118,7 @@ export const translations = {
       createGroupTitle: '创建屏组',
       expandWiFiList: '展开WiFi列表',
       collapseWiFiList: '收起WiFi列表',
+      selectWifi: '选择WiFi',
     },
   },
 }; 

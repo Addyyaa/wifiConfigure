@@ -11,7 +11,10 @@ const SignalWrapper = styled.div`
 
 const Bar = styled.div`
   width: 4px;
-  background-color: ${({ active, color }) => (active ? color : '#ccc')};
+  background-color: ${({ $active, $color, $isSelected }) => {
+    if (!$active) return $isSelected ? 'rgba(255, 255, 255, 0.3)' : '#ccc';
+    return $isSelected ? 'white' : $color;
+  }};
   border-radius: 1px;
   transition: all 0.3s ease;
 `;
@@ -33,7 +36,7 @@ const getColorForLevel = (level) => {
   }
 };
 
-const SignalStrength = ({ level }) => {
+const SignalStrength = ({ level, isSelected = false }) => {
   const heights = ['20%', '40%', '60%', '80%', '100%'];
   const color = getColorForLevel(level);
 
@@ -43,8 +46,9 @@ const SignalStrength = ({ level }) => {
         <Bar
           key={index}
           style={{ height }}
-          active={index < level}
-          color={color}
+          $active={index < level}
+          $color={color}
+          $isSelected={isSelected}
         />
       ))}
     </SignalWrapper>
@@ -53,6 +57,7 @@ const SignalStrength = ({ level }) => {
 
 SignalStrength.propTypes = {
   level: PropTypes.oneOf([1, 2, 3, 4, 5]).isRequired,
+  isSelected: PropTypes.bool,
 };
 
 export default SignalStrength; 
