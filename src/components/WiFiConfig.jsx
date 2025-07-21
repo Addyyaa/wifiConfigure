@@ -444,14 +444,12 @@ const WiFiConfig = () => {
 
       try {
         const result = await getWifiStatus();
-        // if (result === 'connecting') {   # TODO: 开发修复接口前使用这个
         if (result.status === 'connecting') {
           // 如果仍在连接中，则在1秒后安排下一次轮询
           pollingTimeoutRef.current = setTimeout(poll, 1000); 
         } else {
           // 如果状态已更改，则停止轮询并更新状态
           stopPolling();
-          // setStatus(result);  # TODO: 开发修复接口前使用这个
           setStatus(result.status);
         }
       } catch (err) {
@@ -489,7 +487,7 @@ const WiFiConfig = () => {
       try {
         const response = await postWifiConfig(ssid, password);
         console.log('postWifiConfig response:', response);
-        if (response == 'success') {
+        if (response.success == true) {
           startPolling();
         } else {
           setStatus('error');
