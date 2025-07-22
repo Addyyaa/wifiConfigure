@@ -366,7 +366,7 @@ Please change the parent <Route path="${m}"> to <Route path="${m==="/"?"*":`${m}
   background: none;
   border: none;
   align-items: center;
-  padding-left: 3rem;
+  alignSelf: 'flex-end';
   font-size: 0.8rem;
   margin-bottom: 0.7rem;
   color: ${e=>e.$isDarkMode?"#e0e0e0":"hsl(172.61deg 100% 41.37%)"};
