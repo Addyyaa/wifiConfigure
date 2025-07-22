@@ -65,7 +65,15 @@ const modalVariants = {
     exit: { opacity: 0, y: 50 },
 };
 
-function Modal({ isOpen, onClose, title, children, isDarkMode: propIsDarkMode }) {
+function Modal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children, 
+  isDarkMode: propIsDarkMode,
+  style,
+  ...otherProps
+}) {
   const { isDarkMode: contextIsDarkMode } = useAppContext();
   const isDarkMode = propIsDarkMode ?? contextIsDarkMode; // 优先使用 props 传入的，否则用 context
 
@@ -87,6 +95,8 @@ function Modal({ isOpen, onClose, title, children, isDarkMode: propIsDarkMode })
             animate="visible"
             exit="exit"
             onClick={(e) => e.stopPropagation()}
+            style={style}
+            {...otherProps}
           >
             <ModalTitle $isDarkMode={isDarkMode}>{title}</ModalTitle>
             <ModalContent>{children}</ModalContent>

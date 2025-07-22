@@ -8,6 +8,39 @@ import StatusDisplay from './StatusDisplay.jsx';
 import { Spinner, StatusText } from './common/Feedback';
 import SignalStrength from './common/SignalStrength';
 import { useNavigate } from 'react-router-dom';
+import { createGlobalStyle } from 'styled-components';
+import { FistAidKillMenu } from './common/FistAidKillMenu';
+
+const GlobalStyle = createGlobalStyle`
+  html { 
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      font-size: 16px;
+    }
+    @media (min-width: 1025px) {
+      font-size: 20px;
+    }
+    @media (min-width: 1200px) {
+      font-size: 30px;
+    }
+    @media (min-width: 1400px) {
+      font-size: 36px;
+    }
+    @media (min-width: 1600px) {
+      font-size: 40px;
+    }
+    @media (min-width: 1800px) {
+      font-size: 45px;
+    }
+    @media (min-width: 2000px) {
+      font-size: 50px;
+    }
+    @media (min-width: 2200px) {
+      font-size: 60px;
+  }
+`;
 
 const breatheAnimation = keyframes`
   0% { transform: scale(1); box-shadow: 0 4px 20px rgba(0, 77, 255, 0.3); }
@@ -32,24 +65,16 @@ const gradientShift = keyframes`
 const Title = styled(motion.h1)`
   /* 基础字体和布局设置 */
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: auto;
   text-align: center;
-  margin: 0 0 2rem 0;
+  margin-bottom: 0.3rem;
+  width: 100%;
+
   
   /* 交互样式 */
   user-select: none;
   cursor: pointer;
 
-  /* 响应式设计 */
-  @media (max-width: 768px) {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-  }
 
   /* 根据夜间模式应用不同的样式 */
   ${props => props.$isDarkMode 
@@ -85,30 +110,32 @@ const Title = styled(motion.h1)`
 
 const FormContainer = styled(motion.div)`
   background: ${props => props.$isDarkMode ? '#1C1C1E' : 'white'};
-  padding: 2rem;
+  padding: 1rem 1.2rem 1rem;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.4 : 0.1});
-  width: 100%;
-  max-width: 500px;
+  width: 35rem;
+  max-width: 100%;
+  align-items: center;
+  height: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    gap: 1rem;
-  }
 `;
 
 const FormGroup = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
+  margin: 0.1rem 0.05rem 0.1rem;
+  padding-top: 0.5rem;
 `;
 
 const Label = styled.label`
+  display: flex;
+  align-items: center;
   margin-bottom: 0.5rem;
   font-weight: bold;
   font-size: 1rem;
@@ -121,6 +148,7 @@ const Select = styled.select`
   border-radius: 8px;
   font-size: 1rem;
   width: 100%;
+  
   transition: all 0.3s ease;
 
   /* 根据夜间模式应用不同样式 */
@@ -141,6 +169,7 @@ const Input = styled.input`
   font-size: 1rem;
   width: 100%;
   transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
   
   /* 根据夜间模式应用不同样式 */
   background-color: ${props => props.$isDarkMode ? '#333' : '#fff'};
@@ -155,7 +184,7 @@ const Input = styled.input`
 `;
 
 const Button = styled(motion.button)`
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 0.65rem;
   border-radius: 8px;
   border: none;
   background-color: ${props => props.secondary ? '#6c757d' : 'hsl(172.61deg 100% 41.37%)'};
@@ -164,6 +193,7 @@ const Button = styled(motion.button)`
   font-weight: bold;
   cursor: pointer;
   animation: ${props => props.secondary ? 'none' : breatheAnimation} 2s ease-in-out infinite;
+  margin-bottom: 0.7rem;
 
   &:disabled {
     background-color: #ccc;
@@ -172,9 +202,25 @@ const Button = styled(motion.button)`
   }
 `;
 
-const TextButton = styled(motion.text)`
+const TextButton = styled(motion.button)`
+  background: none;
+  border: none;
+  align-items: center;
   padding-left: 3rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.7rem;
   color: ${props => props.$isDarkMode ? '#e0e0e0' : 'hsl(172.61deg 100% 41.37%)'};
+  cursor: pointer;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: ${props => props.$isDarkMode ? '#ffffff' : 'hsl(172.61deg 100% 35.37%)'};
+  }
+  
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -183,13 +229,12 @@ const ButtonContainer = styled.div`
   margin-top: 0.4rem;
   width: 100%;
   align-items: center;
-  background-color: red;
 `;
 
 const ErrorText = styled.p`
   color: #d93025;
   font-size: 0.875rem;
-  margin-top: -0.5rem;
+  margin-top: 0rem;
   margin-bottom: 0.5rem;
   height: 1rem;
 `;
@@ -197,7 +242,7 @@ const ErrorText = styled.p`
 const SelectWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.4rem;
   width: 100%;
 `;
 
@@ -263,7 +308,7 @@ const DropdownMenu = styled.div`
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.3 : 0.15});
   z-index: 1000;
-  max-height: 300px; /* 限制最大高度以启用滚动 */
+  max-height: 22rem; /* 限制最大高度以启用滚动 */
   overflow-y: auto;  /* 确保内容溢出时显示滚动条 */
   margin-top: 4px;
   
@@ -295,6 +340,7 @@ const DropdownOption = styled.div`
   color: ${props => props.$isDarkMode ? '#f0f0f0' : '#333'};
   font-size: 1rem;
   font-weight: 500;
+  height: 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -351,13 +397,22 @@ const SignalContainer = styled.div`
     justify-content: center;
 `;
 
+const MainContainer = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
 const ScreenIdDisplay = styled.p`
   color: ${props => props.$isDarkMode ? '#b0b0b0' : '#666'};
   font-size: 0.9rem;
   text-align: center;
-  margin-top: -10px;
-  margin-bottom: 20px;
   transition: color 0.3s ease;
+  margin-top: 0rem;
+  margin-bottom: 0.3rem;
 `;
 
 const WiFiConfig = () => {
@@ -377,7 +432,7 @@ const WiFiConfig = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoadingDropdown, setIsLoadingDropdown] = useState(false);
-
+  const [isFistAidMenuOpen, setIsFistAidMenuOpen] = useState(false);
   // 开发模式切换相关状态
   const clickCount = useRef(0);
   const lastClickTime = useRef(0);
@@ -596,6 +651,11 @@ const WiFiConfig = () => {
     setIsDropdownOpen(false);
   };
 
+  // 处理急救包按钮点击
+  const handleFirstAidClick = () => {
+    setIsFistAidMenuOpen(true);
+  };
+
   // 点击外部关闭下拉框
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -631,96 +691,109 @@ const WiFiConfig = () => {
 
   return (
     <>
-      <Title
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        onClick={handleTitleClick}
-        $isDarkMode={isDarkMode}
-      >
-        {t('title')}
-      </Title>
-      {screenId && <ScreenIdDisplay $isDarkMode={isDarkMode}>Pintura: {screenId}</ScreenIdDisplay>}
-      <FormContainer 
-        initial={{ opacity: 0, y: 50 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.5 }}
-        $isDarkMode={isDarkMode}
-      >
-        <AnimatePresence>
-            {status !== 'idle' && <StatusDisplay status={status} error={error} onReset={handleReset} />}
-        </AnimatePresence>
-        
-        <form onSubmit={handleSubmit} style={{ visibility: status !== 'idle' ? 'hidden' : 'visible' }}>
-              <FormGroup>
-                  <Label htmlFor="wifi-ssid" style={{marginBottom: '2%'}} $isDarkMode={isDarkMode}>{t('wifiSsid')}</Label>
-                  <SelectWrapper>
-                      <CustomDropdown className="custom-dropdown">
-                        <DropdownButton
-                          onClick={handleDropdownClick}
-                          onKeyDown={handleKeyDown}
-                          disabled={status !== 'idle'}
-                          $isDarkMode={isDarkMode}
-                          tabIndex={0}
-                          role="combobox"
-                          aria-expanded={isDropdownOpen}
-                          aria-haspopup="listbox"
-                        >
-                          <span>{ssid || t('selectWifi')}</span>
-                          <DropdownArrow $isOpen={isDropdownOpen}>▼</DropdownArrow>
-                        </DropdownButton>
-                        
-
-                        
-                                                  {isDropdownOpen && !isLoadingDropdown && (
-                          <DropdownMenu $isDarkMode={isDarkMode} role="listbox">
-                            {wifiList.map((wifi, index) => {
-                              const wifiSignalLevel = getSignalLevel(wifi.signal);
-                              return (
-                                <DropdownOption
-                                  key={`${wifi.ssid}-${index}`}
-                                  onClick={() => handleWifiSelect(wifi.ssid)}
-                                  className={wifi.ssid === ssid ? 'selected' : ''}
-                                  $isDarkMode={isDarkMode}
-                                  role="option"
-                                  aria-selected={wifi.ssid === ssid}
-                                >
-                                  <WifiOptionContent>
-                                    <span>{wifi.ssid}</span>
-                                  </WifiOptionContent>
-                                  <WifiOptionSignal>
-                                    <SignalStrength 
-                                      level={wifiSignalLevel} 
-                                      isSelected={wifi.ssid === ssid}
-                                    />
-                                  </WifiOptionSignal>
-                                </DropdownOption>
-                              );
-                            })}
-                          </DropdownMenu>
-                        )}
-                      </CustomDropdown>
-                      <SignalContainer>
-                        {isLoadingDropdown ? <Spinner size="20px"/> : signalLevel && <SignalStrength level={signalLevel} />}
-                      </SignalContainer>
-                  </SelectWrapper>
-              </FormGroup>
-              <FormGroup>
-                  <Label htmlFor="wifi-password" style={{marginTop: '2%', marginBottom: '2%'}} $isDarkMode={isDarkMode}>{t('wifiPassword')}</Label>
-                  <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'} $isDarkMode={isDarkMode}/>
-                  <ErrorText style={{ marginTop: '5px', marginBottom: '5px' }}>{formError}</ErrorText>
-              </FormGroup>
-              <ButtonContainer>
-                <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
-                    {t('connect')}
-                </Button>
-                <Button type="button" secondary onClick={() => navigate('/create-groups')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
-                    {t('createGroup')}
-                </Button>
-                <TextButton>111</TextButton>
-              </ButtonContainer>
-        </form>
-      </FormContainer>
+      <GlobalStyle />
+      <FistAidKillMenu 
+        isFistAidMenuOpen={isFistAidMenuOpen} 
+        setIsFistAidMenuOpen={setIsFistAidMenuOpen} 
+      />
+      <MainContainer>
+        <Title
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          onClick={handleTitleClick}
+          $isDarkMode={isDarkMode}
+        >
+          {t('title')}
+        </Title>
+        {screenId && <ScreenIdDisplay $isDarkMode={isDarkMode}>Pintura: {screenId}</ScreenIdDisplay>}
+        <FormContainer 
+          initial={{ opacity: 0, y: 50 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5 }}
+          $isDarkMode={isDarkMode}
+        >
+          <AnimatePresence>
+              {status !== 'idle' && <StatusDisplay status={status} error={error} onReset={handleReset} />}
+          </AnimatePresence>
+          
+          <form onSubmit={handleSubmit} style={{ visibility: status !== 'idle' ? 'hidden' : 'visible' }}>
+                <FormGroup>
+                    <Label htmlFor="wifi-ssid" $isDarkMode={isDarkMode}>{t('wifiSsid')}</Label>
+                    <SelectWrapper>
+                        <CustomDropdown className="custom-dropdown">
+                          <DropdownButton
+                            onClick={handleDropdownClick}
+                            onKeyDown={handleKeyDown}
+                            disabled={status !== 'idle'}
+                            $isDarkMode={isDarkMode}
+                            tabIndex={0}
+                            role="combobox"
+                            aria-expanded={isDropdownOpen}
+                            aria-haspopup="listbox"
+                          >
+                            <span>{ssid || t('selectWifi')}</span>
+                            <DropdownArrow $isOpen={isDropdownOpen}>▼</DropdownArrow>
+                          </DropdownButton>
+                          
+                          {isDropdownOpen && !isLoadingDropdown && (
+                            <DropdownMenu $isDarkMode={isDarkMode} role="listbox">
+                              {wifiList.map((wifi, index) => {
+                                const wifiSignalLevel = getSignalLevel(wifi.signal);
+                                return (
+                                  <DropdownOption
+                                    key={`${wifi.ssid}-${index}`}
+                                    onClick={() => handleWifiSelect(wifi.ssid)}
+                                    className={wifi.ssid === ssid ? 'selected' : ''}
+                                    $isDarkMode={isDarkMode}
+                                    role="option"
+                                    aria-selected={wifi.ssid === ssid}
+                                  >
+                                    <WifiOptionContent>
+                                      <span>{wifi.ssid}</span>
+                                    </WifiOptionContent>
+                                    <WifiOptionSignal>
+                                      <SignalStrength 
+                                        level={wifiSignalLevel} 
+                                        isSelected={wifi.ssid === ssid}
+                                      />
+                                    </WifiOptionSignal>
+                                  </DropdownOption>
+                                );
+                              })}
+                            </DropdownMenu>
+                          )}
+                        </CustomDropdown>
+                        <SignalContainer>
+                          {isLoadingDropdown ? <Spinner size="20px"/> : signalLevel && <SignalStrength level={signalLevel} />}
+                        </SignalContainer>
+                    </SelectWrapper>
+                </FormGroup>
+                <FormGroup>
+                    <Label htmlFor="wifi-password" style={{marginTop: '0rem', marginBottom: '0.5rem' }} $isDarkMode={isDarkMode}>{t('wifiPassword')}</Label>
+                    <FullWidthInput id="wifi-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} disabled={status !== 'idle'} $isDarkMode={isDarkMode}/>
+                    <ErrorText>{formError}</ErrorText>
+                </FormGroup>
+                <ButtonContainer>
+                  <Button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
+                      {t('connect')}
+                  </Button>
+                  <Button type="button" secondary onClick={() => navigate('/create-groups')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
+                      {t('createGroup')}
+                  </Button>
+                  <TextButton
+                    type="button"
+                    onClick={handleFirstAidClick}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    $isDarkMode={isDarkMode}
+                  >
+                    {t('fistAidKit')}
+                  </TextButton>
+                </ButtonContainer>
+          </form>
+        </FormContainer>
+      </MainContainer>
     </>
   );
 };

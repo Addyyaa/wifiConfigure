@@ -14,28 +14,15 @@ export const getWifiList = async () => {
     try {
         //  模拟数据
         await sleep(1000);
-        return [
-            {
-              "ssid": "MyHomeWiFi-5G",
-              "signal": -45
-            },
-            {
-              "ssid": "Office-Guest",
-              "signal": -100
-            },
-            {
-              "ssid": "Public_Free_WiFi",
-              "signal": -82
-            },
-            {
-                "ssid": "Public_Free_WiFi_2",
-                "signal": -60
-            },
-            {
-                "ssid": "Public_Free_WiFi_3",
-                "signal": -60
-            }
-          ]
+        function generateMockWifiList() {
+            const wifiList = Array.from({length: 22}, (_, index) => ({
+                ssid: `MockWiFi-${index}`,
+                signal: -100 + Math.floor(Math.random() * 100)
+            }));
+            return wifiList;
+        }
+        const wifiList = generateMockWifiList();
+        return wifiList;
         const response = await axios.get(`${API_BASE_URL}/wifi-list`);
         const data = response.data.map(item => ({
             ...item,
@@ -100,7 +87,13 @@ export const getWifiStatus = async () => {
  * }
  */
 export const forceCloudSync = async () => {
+    
     try {
+        // 模拟数据
+        await sleep(1000);
+        return {
+            status: 'success'
+        }
         const response = await axios.get(`${API_BASE_URL}/force-cloud-sync`)
         return response.data
     } catch (error) {

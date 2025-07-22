@@ -12,7 +12,9 @@ const rotate = keyframes`
   }
 `;
 
-const SpinnerContainer = styled.div`
+const SpinnerContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['size', 'color', 'borderColor'].includes(prop)
+})`
   width: ${props => props.size || '50px'};
   height: ${props => props.size || '50px'};
   border: ${props => `5px solid ${props.borderColor || '#f3f3f3'}`};
