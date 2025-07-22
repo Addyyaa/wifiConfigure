@@ -508,10 +508,10 @@ function Login() {
       padding: '0.3rem',
       borderRadius: '8px',
       backgroundColor: isDarkMode ? '#333' : '#fff',
-      borderColor: isDarkMode ? '#555' : '#ccc',
+      border: `1px solid ${isDarkMode ? '#555' : '#ccc'}`, // 替换为 border
       boxShadow: state.isFocused ? '0 0 0 1px hsl(172.61deg 100% 41.37%)' : 'none',
       '&:hover': {
-        borderColor: isDarkMode ? '#666' : '#b3b3b3',
+        border: `1px solid ${isDarkMode ? '#666' : '#b3b3b3'}`, // 替换为 border
       }
     }),
     option: (provided, state) => ({

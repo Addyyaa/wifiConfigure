@@ -172,10 +172,18 @@ const Button = styled(motion.button)`
   }
 `;
 
+const TextButton = styled(motion.text)`
+  padding-left: 3rem;
+  color: ${props => props.$isDarkMode ? '#e0e0e0' : 'hsl(172.61deg 100% 41.37%)'};
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   gap: 1rem;
+  margin-top: 0.4rem;
   width: 100%;
+  align-items: center;
+  background-color: red;
 `;
 
 const ErrorText = styled.p`
@@ -255,8 +263,8 @@ const DropdownMenu = styled.div`
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.3 : 0.15});
   z-index: 1000;
-  max-height: 260px;
-  overflow-y: auto;
+  max-height: 300px; /* 限制最大高度以启用滚动 */
+  overflow-y: auto;  /* 确保内容溢出时显示滚动条 */
   margin-top: 4px;
   
   /* 自定义滚动条 */
@@ -709,6 +717,7 @@ const WiFiConfig = () => {
                 <Button type="button" secondary onClick={() => navigate('/create-groups')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={status !== 'idle'}>
                     {t('createGroup')}
                 </Button>
+                <TextButton>111</TextButton>
               </ButtonContainer>
         </form>
       </FormContainer>

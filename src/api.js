@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // 后端API地址
-const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-// const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端，开发模式下使用这个
+// const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
+const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端，开发模式下使用这个
 
 
 // 封装一个延时函数
@@ -13,25 +13,29 @@ export const getWifiList = async () => {
     console.log('Fetching WiFi list...', API_BASE_URL);
     try {
         //  模拟数据
-        // await sleep(1000);
-        // return [
-        //     {
-        //       "ssid": "MyHomeWiFi-5G",
-        //       "signal": -45
-        //     },
-        //     {
-        //       "ssid": "Office-Guest",
-        //       "signal": -100
-        //     },
-        //     {
-        //       "ssid": "Public_Free_WiFi",
-        //       "signal": -82
-        //     },
-        //     {
-        //         "ssid": "Public_Free_WiFi_2",
-        //         "signal": -602
-        //     }
-        //   ]
+        await sleep(1000);
+        return [
+            {
+              "ssid": "MyHomeWiFi-5G",
+              "signal": -45
+            },
+            {
+              "ssid": "Office-Guest",
+              "signal": -100
+            },
+            {
+              "ssid": "Public_Free_WiFi",
+              "signal": -82
+            },
+            {
+                "ssid": "Public_Free_WiFi_2",
+                "signal": -60
+            },
+            {
+                "ssid": "Public_Free_WiFi_3",
+                "signal": -60
+            }
+          ]
         const response = await axios.get(`${API_BASE_URL}/wifi-list`);
         const data = response.data.map(item => ({
             ...item,
@@ -49,7 +53,7 @@ export const getWifiList = async () => {
 export const getScreenId = async () => {
     console.log('Fetching Screen ID...');
     try {
-        // return '1234567890' // 测试用
+        return 'PSb935e6L006761' // 测试用
         const response = await axios.get(`${API_BASE_URL}/getScreenId`)
         console.log('screen id, Response:', response.data);
         return response.data
@@ -77,8 +81,6 @@ export const postWifiConfig = async (ssid, password) => {
 
 };
 
-// 模拟获取配网状态
-let statusRequestCount = 0;
 export const getWifiStatus = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/wifi-status`)
@@ -86,6 +88,59 @@ export const getWifiStatus = async () => {
         return response.data  // TODO: 该接口后端没有按照json格式返回，需要后端修改，否则前端无法轮询WiFi状态。需要改成{"status": "connecting"}
     } catch (error) {
         console.error('Error getting WiFi status:', error);
+        throw error;
+    }
+};
+
+// 强制云同步
+/**
+ * 
+ * @returns {
+ *  "status": "success" | "failed"
+ * }
+ */
+export const forceCloudSync = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/force-cloud-sync`)
+        return response.data
+    } catch (error) {
+        console.error('Error forcing cloud sync:', error);
+        throw error;
+    }
+};
+
+// reset功能相关
+/**
+ * @param {string} resetSystem
+ * @param {string} openBluetooth
+ * @param {string} restartWifi
+ * @param {string} openInternetDetectTool
+ * @param {string} muted
+ * @returns {
+ *  "status": "success" | "failed"
+ * }
+ */
+export const resetMenu = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/reset-menu`)
+        return response.data
+    } catch (error) {
+        console.error('Error resetting:', error);
+        throw error;
+    }
+};
+
+// 提取指定图片文件
+export const extractImage = async (imageUrl) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/extract-image`, {
+            params: {
+                imageUrl: imageUrl
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.error('Error extracting image:', error);
         throw error;
     }
 };
