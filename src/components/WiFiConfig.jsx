@@ -13,32 +13,54 @@ import { FistAidKillMenu } from './common/FistAidKillMenu';
 
 const GlobalStyle = createGlobalStyle`
   html { 
-    @media (max-width: 768px) {
+    /* 默认字体大小 */
+    font-size: 16px;
+  }
+
+  /* 横屏模式配置 */
+  @media (orientation: landscape) {
+    html {
+      font-size: 2vw;
+    }
+  }
+  
+  /* 竖屏模式配置 */
+  @media (orientation: portrait) {
+    html {
+      font-size: 3vw;
+    }
+  }
+
+  /* 兼容性配置 - 当浏览器不支持 orientation 时 */
+  @media (max-width: 768px) {
+    html {
       font-size: 16px;
     }
-    @media (min-width: 769px) and (max-width: 1024px) {
-      font-size: 16px;
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    html {
+      font-size: 18px;
     }
-    @media (min-width: 1025px) {
+  }
+  @media (min-width: 1025px) {
+    html {
       font-size: 20px;
     }
-    @media (min-width: 1200px) {
-      font-size: 30px;
+  }
+  @media (min-width: 1200px) {
+    html {
+      font-size: 24px;
     }
-    @media (min-width: 1400px) {
-      font-size: 36px;
+  }
+  @media (min-width: 1400px) {
+    html {
+      font-size: 28px;
     }
-    @media (min-width: 1600px) {
-      font-size: 40px;
+  }
+  @media (min-width: 1600px) {
+    html {
+      font-size: 32px;
     }
-    @media (min-width: 1800px) {
-      font-size: 45px;
-    }
-    @media (min-width: 2000px) {
-      font-size: 50px;
-    }
-    @media (min-width: 2200px) {
-      font-size: 60px;
   }
 `;
 
@@ -115,6 +137,7 @@ const FormContainer = styled(motion.div)`
   box-shadow: 0 8px 32px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.4 : 0.1});
   width: 35rem;
   max-width: 100%;
+  max-height: 60%;
   align-items: center;
   height: auto;
   display: flex;
@@ -128,6 +151,7 @@ const FormContainer = styled(motion.div)`
 const FormGroup = styled.div`
   display: flex;
   width: 100%;
+  justify-content: center;
   flex-direction: column;
   margin: 0.1rem 0.05rem 0.1rem;
   padding-top: 0.5rem;
@@ -167,7 +191,7 @@ const Input = styled.input`
   padding: 0.75rem;
   border-radius: 8px;
   font-size: 1rem;
-  width: 100%;
+  width: 85%;
   transition: all 0.3s ease;
   margin-bottom: 0.5rem;
   
@@ -189,7 +213,7 @@ const Button = styled(motion.button)`
   border: none;
   background-color: ${props => props.secondary ? '#6c757d' : 'hsl(172.61deg 100% 41.37%)'};
   color: white;
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
   animation: ${props => props.secondary ? 'none' : breatheAnimation} 2s ease-in-out infinite;
@@ -206,7 +230,6 @@ const TextButton = styled(motion.button)`
   background: none;
   border: none;
   align-items: center;
-  alignSelf: 'flex-end';
   font-size: 0.8rem;
   margin-bottom: 0.7rem;
   color: ${props => props.$isDarkMode ? '#e0e0e0' : 'hsl(172.61deg 100% 41.37%)'};
@@ -247,13 +270,10 @@ const SelectWrapper = styled.div`
 `;
 
 
-const CustomSelect = styled(Select)`
-  width: calc(100% - 32px); /* Full width minus gap and signal icon width */
-`;
-
 const CustomDropdown = styled.div`
   position: relative;
-  width: calc(100% - 32px);
+  width: 85%;
+  max-width: 95%;
 `;
 
 const DropdownButton = styled.button`
@@ -386,12 +406,12 @@ const WifiOptionSignal = styled.div`
 
 
 const FullWidthInput = styled(Input)`
-    width: calc(100% - 32px); /* Match the select's width */
+    width: 85%; /* Match the select's width */
 `;
 
 const SignalContainer = styled.div`
-    width: 22px; /* Fixed width for the signal icon container */
-    height: 20px;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -763,10 +783,12 @@ const WiFiConfig = () => {
                               })}
                             </DropdownMenu>
                           )}
+                          
                         </CustomDropdown>
                         <SignalContainer>
                           {isLoadingDropdown ? <Spinner size="20px"/> : signalLevel && <SignalStrength level={signalLevel} />}
                         </SignalContainer>
+                        
                     </SelectWrapper>
                 </FormGroup>
                 <FormGroup>

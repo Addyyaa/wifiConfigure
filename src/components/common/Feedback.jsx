@@ -24,7 +24,11 @@ const SpinnerContainer = styled.div.withConfig({
   margin: 0 auto;
 `;
 
-export const Spinner = ({ size, color, borderColor }) => (
+export const Spinner = ({ 
+  size = '50px', 
+  color = 'hsl(172.61deg 100% 41.37%)', 
+  borderColor = '#f3f3f3' 
+}) => (
   <SpinnerContainer 
     size={size}
     color={color}
@@ -37,13 +41,6 @@ Spinner.propTypes = {
   size: PropTypes.string,
   color: PropTypes.string,
   borderColor: PropTypes.string
-};
-
-// 设置默认属性
-Spinner.defaultProps = {
-  size: '50px',
-  color: 'hsl(172.61deg 100% 41.37%)',
-  borderColor: '#f3f3f3'
 };
 
 export const StatusText = styled(motion.p)`
