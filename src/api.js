@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 后端API地址
 // const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-const API_BASE_URL = '/api'; // 前端请求会由代理转发到后端，开发模式下使用这个
+const API_BASE_URL = '/api'; // TODO 前端请求会由代理转发到后端，开发模式下使用这个
 
 
 // 封装一个延时函数
@@ -12,17 +12,17 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const getWifiList = async () => {
     console.log('Fetching WiFi list...', API_BASE_URL);
     try {
-        //  模拟数据
-        await sleep(1000);
-        function generateMockWifiList() {
-            const wifiList = Array.from({length: 22}, (_, index) => ({
-                ssid: `MockWiFi-${index}`,
-                signal: -100 + Math.floor(Math.random() * 100)
-            }));
-            return wifiList;
-        }
-        const wifiList = generateMockWifiList();
-        return wifiList;
+        // TODO 模拟数据
+        // await sleep(1000);
+        // function generateMockWifiList() {
+        //     const wifiList = Array.from({length: 22}, (_, index) => ({
+        //         ssid: `MockWiFi-${index}`,
+        //         signal: -100 + Math.floor(Math.random() * 100)
+        //     }));
+        //     return wifiList;
+        // }
+        // const wifiList = generateMockWifiList();
+        // return wifiList;
         const response = await axios.get(`${API_BASE_URL}/wifi-list`);
         const data = response.data.map(item => ({
             ...item,
@@ -40,7 +40,7 @@ export const getWifiList = async () => {
 export const getScreenId = async () => {
     console.log('Fetching Screen ID...');
     try {
-        return 'PSb935e6L006761' // 测试用
+        // return 'PSb935e6L006761' // TODO 测试用模拟屏幕ID
         const response = await axios.get(`${API_BASE_URL}/getScreenId`)
         console.log('screen id, Response:', response.data);
         return response.data

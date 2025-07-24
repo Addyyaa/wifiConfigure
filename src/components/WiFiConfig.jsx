@@ -15,6 +15,8 @@ const GlobalStyle = createGlobalStyle`
   html { 
     /* 默认字体大小 */
     font-size: 16px;
+    height: 100%;
+    scroll-y: auto;
   }
 
   /* 横屏模式配置 */
@@ -137,7 +139,6 @@ const FormContainer = styled(motion.div)`
   box-shadow: 0 8px 32px rgba(0, 0, 0, ${props => props.$isDarkMode ? 0.4 : 0.1});
   width: 35rem;
   max-width: 100%;
-  max-height: 60%;
   align-items: center;
   height: auto;
   display: flex;
@@ -403,6 +404,12 @@ const WifiOptionSignal = styled.div`
   margin-left: 8px;
 `;
 
+const SavedIndicator = styled.span`
+  color: hsl(172.61deg 100% 41.37%);
+  font-size: 0.8rem;
+  margin-left: 4px;
+  font-weight: 500;
+`;
 
 
 const FullWidthInput = styled(Input)`
@@ -457,6 +464,66 @@ const WiFiConfig = () => {
   const clickCount = useRef(0);
   const lastClickTime = useRef(0);
 
+  // WiFi信息本地存储相关函数
+  const saveWifiInfo = useCallback((wifiSsid, wifiPassword) => {
+    try {
+      const wifiInfoKey = 'wifiInfo';
+      let wifiInfo = {};
+      
+      // 获取已存储的WiFi信息
+      const existingWifiInfo = localStorage.getItem(wifiInfoKey);
+      if (existingWifiInfo) {
+        wifiInfo = JSON.parse(existingWifiInfo);
+      }
+      
+      // 添加或更新WiFi信息
+      wifiInfo[wifiSsid] = wifiPassword;
+      
+      // 保存到本地存储
+      localStorage.setItem(wifiInfoKey, JSON.stringify(wifiInfo));
+      console.log('WiFi信息已保存到本地存储:', wifiSsid);
+    } catch (error) {
+      console.error('保存WiFi信息失败:', error);
+    }
+  }, []);
+
+  const loadWifiInfo = useCallback((wifiSsid) => {
+    try {
+      const wifiInfoKey = 'wifiInfo';
+      const existingWifiInfo = localStorage.getItem(wifiInfoKey);
+      
+      if (existingWifiInfo) {
+        const wifiInfo = JSON.parse(existingWifiInfo);
+        const savedPassword = wifiInfo[wifiSsid];
+        
+        if (savedPassword) {
+          setPassword(savedPassword);
+          console.log('已从本地存储加载WiFi密码:', wifiSsid);
+          return true;
+        } else {
+          setPassword('');
+        }
+      }
+    } catch (error) {
+      console.error('加载WiFi信息失败:', error);
+    }
+    return false;
+  }, []);
+
+  const getAllWifiInfo = useCallback(() => {
+    try {
+      const wifiInfoKey = 'wifiInfo';
+      const existingWifiInfo = localStorage.getItem(wifiInfoKey);
+      
+      if (existingWifiInfo) {
+        return JSON.parse(existingWifiInfo);
+      }
+    } catch (error) {
+      console.error('获取所有WiFi信息失败:', error);
+    }
+    return {};
+  }, []);
+
   const stopPolling = useCallback(() => {
     if (pollingTimeoutRef.current) {
       clearTimeout(pollingTimeoutRef.current);
@@ -482,14 +549,23 @@ const WiFiConfig = () => {
       if (list.length === 0) {
         setNoWifiFound(true);
       } else if (!preserveCurrentSelection) {
-        // 只在初始加载时自动选择WiFi
-        const savedSsid = localStorage.getItem('wifiSsid');
-        const savedPassword = localStorage.getItem('wifiPassword');
-
-        if (savedSsid && savedPassword && list.some(wifi => wifi.ssid === savedSsid)) {
-          setSsid(savedSsid);
-          setPassword(savedPassword);
-        } else {
+        // 获取所有已保存的WiFi信息
+        const savedWifiInfo = getAllWifiInfo();
+        
+        // 尝试找到已保存的WiFi并自动选择
+        let foundSavedWifi = false;
+        for (const wifi of list) {
+          if (savedWifiInfo[wifi.ssid]) {
+            setSsid(wifi.ssid);
+            setPassword(savedWifiInfo[wifi.ssid]);
+            foundSavedWifi = true;
+            console.log('自动选择已保存的WiFi:', wifi.ssid);
+            break;
+          }
+        }
+        
+        // 如果没有找到已保存的WiFi，选择第一个
+        if (!foundSavedWifi) {
           setSsid(list[0].ssid);
           setPassword('');
         }
@@ -500,18 +576,18 @@ const WiFiConfig = () => {
     } finally {
       setIsLoadingList(false);
     }
-  }, [t]);
+  }, [t, getAllWifiInfo]);
 
   useEffect(() => {
     fetchWifiList();
   }, [fetchWifiList]);
 
+  // 当SSID改变时，尝试加载对应的密码
   useEffect(() => {
-    if (status === 'success') {
-      localStorage.setItem('wifiSsid', ssid);
-      localStorage.setItem('wifiPassword', password);
+    if (ssid && status === 'idle') {
+      loadWifiInfo(ssid);
     }
-  }, [status, ssid, password]);
+  }, [ssid, status]);
 
   const startPolling = useCallback(() => {
     stopPolling(); // 确保没有多个轮询循环在运行
@@ -534,6 +610,11 @@ const WiFiConfig = () => {
           // 如果状态已更改，则停止轮询并更新状态
           stopPolling();
           setStatus(result.status);
+          
+          // 如果连接成功，保存WiFi信息到本地
+          if (result.status === 'success') {
+            saveWifiInfo(ssid, password);
+          }
         }
       } catch (err) {
         stopPolling();
@@ -543,7 +624,7 @@ const WiFiConfig = () => {
     };
 
     poll(); // 立即开始第一次轮询
-  }, [stopPolling, t]);
+  }, [stopPolling, t, ssid, password, saveWifiInfo]);
 
   const getSignalLevel = (dbm) => {
     if (dbm > -50) return 5; // Excellent
@@ -590,14 +671,6 @@ const WiFiConfig = () => {
     // Do not reset password to allow for quick retries
   };
 
-  // 添加防抖函数（在组件外部定义）
-  const debounce = (func, delay) => {
-    let timer;
-    return function(...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => func.apply(this, args), delay);
-    };
-  };
 
   // 处理标题点击 - 开发模式切换
   const handleTitleClick = () => {
@@ -747,6 +820,7 @@ const WiFiConfig = () => {
                             onKeyDown={handleKeyDown}
                             disabled={status !== 'idle'}
                             $isDarkMode={isDarkMode}
+                            type="button"
                             tabIndex={0}
                             role="combobox"
                             aria-expanded={isDropdownOpen}
@@ -760,6 +834,9 @@ const WiFiConfig = () => {
                             <DropdownMenu $isDarkMode={isDarkMode} role="listbox">
                               {wifiList.map((wifi, index) => {
                                 const wifiSignalLevel = getSignalLevel(wifi.signal);
+                                const savedWifiInfo = getAllWifiInfo();
+                                const isSaved = savedWifiInfo[wifi.ssid];
+                                
                                 return (
                                   <DropdownOption
                                     key={`${wifi.ssid}-${index}`}
@@ -771,6 +848,9 @@ const WiFiConfig = () => {
                                   >
                                     <WifiOptionContent>
                                       <span>{wifi.ssid}</span>
+                                      {isSaved && (
+                                        <SavedIndicator>✓</SavedIndicator>
+                                      )}
                                     </WifiOptionContent>
                                     <WifiOptionSignal>
                                       <SignalStrength 
