@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { forceCloudSync } from '../../api';
+import { useAppContext } from '../AppContext';
 
 const FistAidKillMenuContainer = styled.div`
   display: flex;
@@ -42,8 +43,54 @@ const SyncButton = styled.button`
   }
 `;
 
+const TroubleshootingTitle = styled.h3`
+  color: ${props => props.$isDarkMode ? '#e0e0e0' : '#333'};
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;
+  transition: color 0.3s ease;
+`;
+
+const TroubleshootingList = styled.ul`
+  text-align: left;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: none;
+  
+  li {
+    position: relative;
+    color: ${props => props.$isDarkMode ? '#e0e0e0' : '#333'};
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+    
+    &::before {
+      content: '•';
+      position: absolute;
+      left: -1.2rem;
+      color: ${props => props.$isDarkMode ? '#888' : '#666'};
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const SupportText = styled.p`
+  text-align: center;
+  color: ${props => props.$isDarkMode ? '#b0b0b0' : '#666'};
+  margin: 0;
+  transition: color 0.3s ease;
+`;
+
 export const FistAidKillMenu = ({ isFistAidMenuOpen, setIsFistAidMenuOpen }) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useAppContext();
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState(null); // 'success', 'error', null
 
@@ -98,29 +145,21 @@ export const FistAidKillMenu = ({ isFistAidMenuOpen, setIsFistAidMenuOpen }) => 
           {getButtonText()}
         </SyncButton>
         
-        {/* 显示同步状态信息 */}
-        {syncStatus === 'success' && (
-          <p style={{ color: 'hsl(172.61deg 100% 41.37%)', fontWeight: 'bold' }}>
-            {t('syncSuccessMessage')}
-          </p>
-        )}
+        <TroubleshootingTitle $isDarkMode={isDarkMode}>
+          {t('wifiTroubleshooting')}
+        </TroubleshootingTitle>
         
-        {syncStatus === 'error' && (
-          <p style={{ color: '#dc3545', fontWeight: 'bold' }}>
-            {t('syncFailedMessage')}
-          </p>
-        )}
-        
-        <h3>{t('wifiTroubleshooting')}</h3>
-        <ul style={{ textAlign: 'left', lineHeight: '1.6' }}>
+        <TroubleshootingList $isDarkMode={isDarkMode}>
           <li>{t('wifiPasswordCheck')}</li>
           <li>{t('wifiRangeCheck')}</li>
+          <li>{t('wifiInfoConfirm')}</li>
           <li>{t('restartRouter')}</li>
           <li>{t('checkWifiSettings')}</li>
-        </ul>
-        <p style={{ textAlign: 'center', color: '#666' }}>
+        </TroubleshootingList>
+        
+        <SupportText $isDarkMode={isDarkMode}>
           {t('contactSupport')}
-        </p>
+        </SupportText>
       </FistAidKillMenuContainer>
     </Modal>
   );
