@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // 后端API地址
-// const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-const API_BASE_URL = '/api'; // TODO 前端请求会由代理转发到后端，开发模式下使用这个
+const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
+// const API_BASE_URL = '/api'; // TODO 前端请求会由代理转发到后端，开发模式下使用这个
 
 
 // 封装一个延时函数
@@ -23,6 +23,7 @@ export const getWifiList = async () => {
         // }
         // const wifiList = generateMockWifiList();
         // return wifiList;
+        // --------------------
         const response = await axios.get(`${API_BASE_URL}/wifi-list`);
         const data = response.data.map(item => ({
             ...item,
@@ -53,6 +54,11 @@ export const getScreenId = async () => {
 
 export const postWifiConfig = async (ssid, password) => {
     console.log(`The user posted WiFi config for SSID: ${ssid} PASSWORD: ${password}`);
+    // TODO 模拟返回状态
+    // return {
+    //     "success": true,
+    // }
+    // --------------------
     try {
         const response = await axios.get(`${API_BASE_URL}/wifi-config`, {
             params: {
@@ -70,6 +76,12 @@ export const postWifiConfig = async (ssid, password) => {
 
 export const getWifiStatus = async () => {
     try {
+        // TODO 模拟返回状态
+        // await sleep(1000);
+        // return {
+        //     status: 'passerror'
+        // }
+        // --------------------
         const response = await axios.get(`${API_BASE_URL}/wifi-status`)
         console.log('wifi status, Response:', response.data);
         return response.data  // TODO: 该接口后端没有按照json格式返回，需要后端修改，否则前端无法轮询WiFi状态。需要改成{"status": "connecting"}
@@ -89,11 +101,11 @@ export const getWifiStatus = async () => {
 export const forceCloudSync = async () => {
     
     try {
-        // 模拟数据
-        await sleep(1000);
-        return {
-            status: 'success'
-        }
+        // // 模拟数据
+        // await sleep(1000);
+        // return {
+        //     status: 'success'
+        // }
         const response = await axios.get(`${API_BASE_URL}/force-cloud-sync`)
         return response.data
     } catch (error) {

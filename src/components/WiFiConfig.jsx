@@ -572,7 +572,7 @@ const WiFiConfig = () => {
       }
     } catch (err) {
       console.error('Failed to fetch WiFi list:', err);
-      setError(t('statusError'));
+      setError(`${t('statusError')} (debug_info: ${err.message || ''})`);
     } finally {
       setIsLoadingList(false);
     }
@@ -615,11 +615,16 @@ const WiFiConfig = () => {
           if (result.status === 'success') {
             saveWifiInfo(ssid, password);
           }
+
+          if (result.status === 'passerror') {
+            setStatus('password_error');
+            setError(`${t('statusPasswordError')}`);
+          }
         }
       } catch (err) {
         stopPolling();
         setStatus('error');
-        setError(t('statusError'));
+        setError(`${t('statusError')} (debug_info: ${err.message || ''})`);
       }
     };
 
@@ -655,11 +660,11 @@ const WiFiConfig = () => {
           startPolling();
         } else {
           setStatus('error');
-          setError(t('statusError'));
+          setError(`${t('statusError')} (debug_info: ${response}} || "")`);
         }
       } catch (err) {
         setStatus('error');
-        setError(t('statusError'));
+        setError(`${t('statusError')} (debug_info: ${err.message || ''})`);
       }
     }
   };
