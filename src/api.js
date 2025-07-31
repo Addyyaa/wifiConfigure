@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // 后端API地址
-const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
-// const API_BASE_URL = '/api'; // TODO 前端请求会由代理转发到后端，开发模式下使用这个
+// const API_BASE_URL = 'http://' + window.location.hostname + ':80/api';
+const API_BASE_URL = '/api'; // TODO 前端请求会由代理转发到后端，开发模式下使用这个
 
 
 // 封装一个延时函数

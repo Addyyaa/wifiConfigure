@@ -649,6 +649,10 @@ const WiFiConfig = () => {
       setFormError(t('passwordRequired'));
       return;
     }
+    if (password.length < 8) {
+      setFormError(t('passwordLengthError'));
+      return;
+    }
     const confirmationMessage = `${t('confirmPasswordPrompt')}\n\n${t('wifiPassword')}: ${password}`;
     if (window.confirm(confirmationMessage)) {
       setStatus('connecting');

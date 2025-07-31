@@ -70,6 +70,7 @@ export const translations = {
       restartRouter: 'A typical router can support approximately 12 devices. If the number of devices connected to the router exceeds this limit, please add another router.',
       checkWifiSettings: 'Check device WiFi settings',
       contactSupport: 'If the problem persists, please contact technical support.',
+      passwordLengthError: 'Password must be at least 8 characters long.',
     },
   },
   zh: {
@@ -143,6 +144,7 @@ export const translations = {
       restartRouter: '普通路由器带机量约12台设备，若路由器连接的设备超过数量，请增加路由器',
       checkWifiSettings: '检查设备 WiFi 设置',
       contactSupport: '如果问题仍然存在，请联系技术支持。',
+      passwordLengthError: '密码必须至少8个字符。',
     },
   },
 }; 

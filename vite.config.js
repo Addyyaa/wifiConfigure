@@ -13,7 +13,7 @@ export default defineConfig({
     // 这样可以避免跨域问题
     proxy: {
       '/api': {
-        target: 'http://192.168.1.26',
+        target: 'http://192.168.1.44',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'), // 保留 /api 前缀
         configure: (proxy, options) => {
