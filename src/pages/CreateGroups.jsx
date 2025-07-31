@@ -138,12 +138,12 @@ function CreateGroups() {
                 setScreenId(id);
                 const list = groups?.data || [];
                 setGroupList(list);
-                setView(list.length > 0 ? 'select' : 'create');
+                // setView(list.length > 0 ? 'select' : 'create');  // 如果有屏幕组则自动进入添加到已有屏幕组页面
             } catch (error) {
                 console.error('Error fetching data:', error);
                 // Handle error appropriately
             } finally {
-                setIsLoading(false);
+                setIsLoading(false);  
             }
         };
         fetchData();
