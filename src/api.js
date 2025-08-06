@@ -82,7 +82,9 @@ export const getWifiStatus = async () => {
         //     status: 'passerror'
         // }
         // --------------------
-        const response = await axios.get(`${API_BASE_URL}/wifi-status`)
+        const response = await axios.get(`${API_BASE_URL}/wifi-status`, {
+            timeout: 1000
+        })
         console.log('wifi status, Response:', response.data);
         return response.data  // TODO: 该接口后端没有按照json格式返回，需要后端修改，否则前端无法轮询WiFi状态。需要改成{"status": "connecting"}
     } catch (error) {

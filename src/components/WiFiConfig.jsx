@@ -592,7 +592,7 @@ const WiFiConfig = () => {
   const startPolling = useCallback(() => {
     stopPolling(); // 确保没有多个轮询循环在运行
     pollingStartTimeRef.current = Date.now();
-    
+    let errorCount = 0;
     const poll = async () => {
       // 检查是否超时（60秒）
       if (Date.now() - pollingStartTimeRef.current > 60000) {
@@ -622,9 +622,14 @@ const WiFiConfig = () => {
           }
         }
       } catch (err) {
-        stopPolling();
-        setStatus('error');
-        setError(`${t('statusError')} (debug_info: ${err.message || ''})`);
+        errorCount += 1;
+        if (errorCount > 20) {
+          stopPolling();
+          setStatus('error');
+          setError(`${t('statusError')} (debug_info: ${err.message || ''})`);
+          return;
+        }
+        pollingTimeoutRef.current = setTimeout(poll, 1000);
       }
     };
 
