@@ -664,7 +664,7 @@ const WiFiConfig = () => {
           startPolling();
         } else {
           setStatus('error');
-          setError(`${t('statusError')} (debug_info: ${response}} || "")`);
+          setError(`${t('statusError')} (debug_info: ${response.message} || "")`);
         }
       } catch (err) {
         setStatus('error');
