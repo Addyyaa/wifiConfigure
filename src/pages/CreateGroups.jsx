@@ -120,22 +120,19 @@ const ScreenCount = styled.span`
 
 
 function CreateGroups() {
-    const [screenId, setScreenId] = useState('');
     const [groupList, setGroupList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [view, setView] = useState('initial'); // loading, initial, create, select
     const [newGroupName, setNewGroupName] = useState('');
     const { t } = useTranslation();
-    const { screenId: contextScreenId, isDarkMode } = useAppContext(); // 获取 isDarkMode
+    const { screenId, isDarkMode } = useAppContext(); // 获取 isDarkMode
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [id, groups] = await Promise.all([
-                    getScreenId(),
+                const [groups] = await Promise.all([
                     getScreenGroupList()
                 ]);
-                setScreenId(id);
                 const list = groups?.data || [];
                 setGroupList(list);
                 // setView(list.length > 0 ? 'select' : 'create');  // 如果有屏幕组则自动进入添加到已有屏幕组页面
@@ -147,7 +144,7 @@ function CreateGroups() {
             }
         };
         fetchData();
-    }, [setScreenId]);
+    }, []);
 
     const handleCreateGroup = async () => {
         if (!newGroupName.trim() || !screenId) return;
