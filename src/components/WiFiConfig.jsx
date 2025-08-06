@@ -130,6 +130,15 @@ const Title = styled(motion.h1)`
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: ${gradientShift} 4s ease-in-out infinite;
+
+  /* 为iOS添加特殊处理 */
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+  -webkit-touch-callout: none;
+  
+  /* 确保在iOS上可点击 */
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
 const FormContainer = styled(motion.div)`
@@ -796,6 +805,11 @@ const WiFiConfig = () => {
     )
   }
 
+  const handleTitleInteraction = (e) => {
+    e.preventDefault();
+    handleTitleClick();
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -808,7 +822,8 @@ const WiFiConfig = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          onClick={handleTitleClick}
+          onClick={handleTitleInteraction}
+          onTouchEnd={handleTitleInteraction}
           $isDarkMode={isDarkMode}
         >
           {t('title')}
